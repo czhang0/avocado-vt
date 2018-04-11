@@ -268,13 +268,14 @@ class XMLTreeFile(ElementTree.ElementTree, XMLBackup):
         # to hold the original content.
         try:
             # Test if xml is a valid filename
-            self.sourcebackupfile = open(xml, "rb")
+            logging.debug("xml file name: %s" % xml)
+            self.sourcebackupfile = open(xml, "r")
             self.sourcebackupfile.close()
             # XMLBackup init will take care of creating a copy
         except (IOError, OSError):
             # Assume xml is a string that needs a temporary source file
             self.sourcebackupfile = TempXMLFile()
-            self.sourcebackupfile.write(xml)
+            self.sourcebackupfile.write(xml.encode())
             self.sourcebackupfile.close()
         # sourcebackupfile now safe to use for base class initialization
         XMLBackup.__init__(self, self.sourcebackupfile.name)

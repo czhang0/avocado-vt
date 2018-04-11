@@ -60,8 +60,6 @@ if 'AUTOTEST_PATH' in os.environ:
     SETUP_MODULES.setup(base_path=CLIENT_DIR,
                         root_module_name="autotest.client")
 
-from autotest.client.shared import error
-
 import six
 
 
@@ -252,7 +250,7 @@ class VirtTest(test.Test):
             details = sys.exc_info()[1]
             self.__status = details
             if not hasattr(self, "cancel"):     # Old Avocado, skip here
-                if isinstance(self.__status, error.TestNAError):
+                if isinstance(self.__status, exceptions.TestCancel):
                     raise exceptions.TestSkipError(self.__status)
         finally:
             if env_lang:
@@ -268,11 +266,11 @@ class VirtTest(test.Test):
         reports the correct results
         """
         if self.__status != "PASS":
-            if isinstance(self.__status, error.TestNAError):
+            if isinstance(self.__status, exceptions.TestCancel):
                 self.cancel(str(self.__status))
-            elif isinstance(self.__status, error.TestWarn):
+            elif isinstance(self.__status, exceptions.TestWarn):
                 self.log.warn(str(self.__status))
-            elif isinstance(self.__status, error.TestFail):
+            elif isinstance(self.__status, exceptions.TestFail):
                 self.fail(str(self.__status))
             else:
                 raise self.__status  # pylint: disable=E0702

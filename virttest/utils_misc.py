@@ -499,6 +499,9 @@ def log_line(filename, line):
                            " _open_log_files")
     log_file = get_log_filename(filename)
     base_file = os.path.basename(log_file)
+    logging.debug("open sniffer log file")
+    logging.debug("base_file: %s" % base_file)
+    logging.debug("_open_log_files: %s" % _open_log_files)
     try:
         if base_file not in _open_log_files:
             # First, let's close the log files opened in old directories
@@ -514,6 +517,7 @@ def log_line(filename, line):
             line = string_safe_encode(line)
         except UnicodeDecodeError:
             line = line.decode("utf-8", "ignore").encode("utf-8")
+        logging.debug("write sniffer log file")
         _open_log_files[base_file].write("%s: %s\n" % (timestr, line))
         _open_log_files[base_file].flush()
     finally:

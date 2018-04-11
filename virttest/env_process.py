@@ -125,6 +125,7 @@ def preprocess_vm(test, params, env, name):
         create_vm = True
     elif vm_type == 'libvirt':
         connect_uri = libvirt_vm.normalize_connect_uri(connect_uri)
+        #connect_uri = libvirt_vm.normalize_connect_uri(connect_uri.encode('utf-8'))
         if (not vm.connect_uri == connect_uri):
             create_vm = True
     else:
@@ -792,14 +793,15 @@ def preprocess(test, params, env):
 
     if kvm_userspace_ver_cmd:
         try:
-            kvm_userspace_version = avocado_process.system_output(
-                kvm_userspace_ver_cmd, shell=True).decode().strip()
+            kvm_userspace_version = avocado_process.run(
+                kvm_userspace_ver_cmd, shell=True).stdout_text.strip()
         except avocado_process.CmdError:
             kvm_userspace_version = "Unknown"
     else:
         qemu_path = utils_misc.get_qemu_binary(params)
         version_output = avocado_process.system_output("%s -version" % qemu_path,
-                                                       verbose=False).decode()
+                                                       verbose=False)
+        logging.debug("type: %s" % type(version_output))
         version_line = version_output.split('\n')[0]
         matches = re.match(QEMU_VERSION_RE, version_line)
         if matches:
@@ -854,6 +856,8 @@ def preprocess(test, params, env):
         connect_uri = libvirt_vm.normalize_connect_uri(connect_uri)
         # Set the LIBVIRT_DEFAULT_URI to make virsh command
         # work on connect_uri as default behavior.
+        logging.debug("connect_uri type: %s" % type(connect_uri))
+        logging.debug("params type: %s" % type(params))
         os.environ['LIBVIRT_DEFAULT_URI'] = connect_uri
         if params.get("setup_libvirt_polkit") == "yes":
             pol = test_setup.LibvirtPolkitConfig(params)

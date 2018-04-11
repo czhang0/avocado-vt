@@ -707,6 +707,7 @@ class BaseVM(object):
         # TODO: Redesign address_cache and declare it in this class
         mac_pattern = "%s_6" if ip_version == "ipv6" else "%s"
         ip_addr = self.address_cache.get(mac_pattern % mac)
+        logging.debug("self.address_cache: %s" % self.address_cache)
         if not ip_addr:
             raise VMIPAddressMissingError(mac, ip_version)
 
@@ -824,6 +825,7 @@ class BaseVM(object):
         else:
             self.virtnet.append(params)
         nic = self.virtnet[nic_name]
+        logging.debug("in add_nic, nic: %s" % nic)
         if 'mac' not in nic:  # generate random mac
             logging.debug("Generating random mac address for nic")
             self.virtnet.generate_mac_address(nic_name)

@@ -72,6 +72,7 @@
 
 # Licensed to PSF under a Contributor Agreement.
 # See http://www.python.org/2.4/license for licensing details.
+import logging
 
 __all__ = [
     # public symbols
@@ -578,7 +579,7 @@ class ElementTree(object):
 
     def parse(self, source, parser=None):
         if not hasattr(source, "read"):
-            source = open(source, "rb")
+            source = open(source, "r")
         if not parser:
             parser = XMLTreeBuilder()
         while 1:
@@ -657,7 +658,7 @@ class ElementTree(object):
     def write(self, file, encoding="us-ascii"):
         assert self._root is not None
         if not hasattr(file, "write"):
-            file = open(file, "wb")
+            file = open(file, "w")
         if not encoding:
             encoding = "us-ascii"
         elif encoding != "utf-8" and encoding != "us-ascii":
@@ -756,7 +757,8 @@ def dump(elem):
 
 def _encode(s, encoding):
     try:
-        return s.encode(encoding)
+        return s.encode(encoding).decode('utf-8')
+        #return s.encode(encoding).decode()
     except AttributeError:
         return s  # 1.5.2: assume the string uses the right encoding
 
@@ -891,7 +893,7 @@ class iterparse(object):
 
     def __init__(self, source, events=None):
         if not hasattr(source, "read"):
-            source = open(source, "rb")
+            source = open(source, "r")
         self._file = source
         self._events = []
         self._index = 0
@@ -1069,7 +1071,7 @@ class TreeBuilder(object):
     def _flush(self):
         if self._data:
             if self._last is not None:
-                text = string.join(self._data, "")
+                text = "".join(self._data)
                 if self._tail:
                     assert self._last.tail is None, "internal error (tail)"
                     self._last.tail = text
@@ -1163,9 +1165,9 @@ class XMLTreeBuilder(object):
             parser.StartElementHandler = self._start_list
         except AttributeError:
             pass
-        encoding = None
-        if not parser.returns_unicode:
-            encoding = "utf-8"
+        #encoding = None
+        #if not parser.returns_unicode:
+        #    encoding = "utf-8"
         # target.xml(encoding, None)
         self._doctype = None
         self.entity = {}

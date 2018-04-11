@@ -74,7 +74,7 @@ class Env(IterableUserDict):
         if filename:
             try:
                 if os.path.isfile(filename):
-                    f = open(filename, "r")
+                    f = open(filename, "rb")
                     env = cPickle.load(f)
                     f.close()
                     if env.get("version", 0) >= version:
@@ -110,7 +110,7 @@ class Env(IterableUserDict):
             raise EnvSaveError("No filename specified for this env file")
         self.save_lock.acquire()
         try:
-            f = open(filename, "w")
+            f = open(filename, "wb")
             cPickle.dump(self.data, f)
             f.close()
         finally:
@@ -246,6 +246,7 @@ class Env(IterableUserDict):
 
         :param params: Params object.
         """
+        logging.debug('in start_ip_sniffering, address_cache: %s' % self.get("address_cache"))
         self.data.setdefault("address_cache", ip_sniffing.AddrCache())
         sniffers = ip_sniffing.Sniffers
 
@@ -261,8 +262,12 @@ class Env(IterableUserDict):
                                params['remote_node_password'],
                                params.get('remote_shell_prompt', '#'))
                 session = remote.remote_login(client, *remote_opts)
+            logging.debug("before  handle sniffer")
+            logging.debug("length of sniffers: %d" % len(sniffers))
             for s_cls in sniffers:
+                logging.debug("tcpdump exist")
                 if s_cls.is_supported(session):
+                    logging.debug("tcpdump ip-sniffer.log")
                     self._sniffer = s_cls(self.data["address_cache"],
                                           "ip-sniffer.log",
                                           remote_opts)
